@@ -11,7 +11,7 @@ const allowedOrigins = [
   'https://mecha-mayhem-frontend.vercel.app',
   'https://mechamayhem.ca',
   'http://localhost:3000',
-  'https://prod.d2bl7a5cpdmoza.amplifyapp.com'
+  'https://mecha-mayhem-frontend-2025.vercel.app'
 ];
 
 // CORS

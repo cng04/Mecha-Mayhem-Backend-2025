@@ -3,7 +3,7 @@ const router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'ay Mayhem' });
+  res.json({ status: 'ok', service: 'Mecha Mayhem API' });
 });
 
 module.exports = router;
