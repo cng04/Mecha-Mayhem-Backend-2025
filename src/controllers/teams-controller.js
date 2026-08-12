@@ -2,6 +2,7 @@ const { transformMatches } = require("../util/transformers/transformMatches");
 const { yearToKeyMap, gradeToKeyMap, divToKeyMap } = require("../util/maps");
 const { getAllTeamsData, getTeamInfo } = require("../util/req/getTeamInfo");
 const { requestRobotEvents } = require("../util/req/requestRobotEvents");
+const { db } = require("../config/firebaseConfig")
 
 // route to retrieve team information for a season
 const getInfo = async (req, res) => {
@@ -152,4 +153,61 @@ const getOPR = async (req, res) => {
     }
 };
 
-module.exports = { getInfo, getAllTeams, getOneTeam, getOPR };
+////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////   APIS FOR TEAMS PORTAL BELOW   /////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+const teamsSelectedRef = db.collection("2025").doc("teams-selected-for-interview");
+
+// validates the team is a team selected for an interview
+const validateSelectedTeam = async (teamID) => {
+    const teamsSelectedDoc = await teamsSelectedRef.get();
+    const teamsSelected = teamsSelectedDoc.data();
+
+    console.log(teamsSelected[teamID]);
+
+    if (teamsSelected[teamID]) {
+        return teamsSelected[teamID];
+    } else {
+        return undefined;
+    }
+}
+
+// retrieves all information for a selected team by id
+const getSelectedTeam = async (req, res, next) => {
+    try {
+        const selectedTeamData = await validateSelectedTeam(req.params.teamID);
+        selectedTeamData ? res.status(200).send(selectedTeamData) : res.status(400).send({message: "You have not been selected for an interview"});
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+// changing team "ready" status
+const changeSelectedTeamStatus = async (req, res, next) => {
+    const teamsSelectedDoc = await teamsSelectedRef.get();
+    const teamsSelected = teamsSelectedDoc.data();
+    const { teamID, newStatus } = req.body;
+    try {
+        const selectedTeamData = await validateSelectedTeam(teamID);
+        if (selectedTeamData) {
+            await teamsSelectedRef.update({
+                [teamID]: {
+                    ...teamsSelected[teamID],
+                    status: newStatus
+                }
+            })
+
+            console.log("Updated team status successfully");
+            res.sendStatus(200);
+        } else {
+            res.status(400).send({message: "You have not been selected for an interview"});
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+module.exports = { getInfo, getAllTeams, getOneTeam, getOPR, getSelectedTeam, changeSelectedTeamStatus };

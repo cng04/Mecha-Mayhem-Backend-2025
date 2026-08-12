@@ -10,7 +10,8 @@ const allowedOrigins = [
   'https://mecha-mayhem-frontend-1crs5fdcj-isaacs-projects-0e7865f8.vercel.app',
   'https://mecha-mayhem-frontend.vercel.app',
   'https://mechamayhem.ca',
-  'http://localhost:3000'
+  'http://localhost:3000',
+  'https://prod.d2bl7a5cpdmoza.amplifyapp.com'
 ];
 
 // CORS
@@ -29,7 +30,6 @@ app.use(cors({
   }
 }));
 
-
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
@@ -41,7 +41,7 @@ const photosRouter = require('./views/photos-router');
 const awardsRouter = require('./views/awards-router');
 const teamsRouter = require('./views/teams-router');
 const matchRouter = require('./views/matches-router');
-const apiRouter = require('./views/api');
+import judgesPortalRouter from './views/judges-portal-router';
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -55,12 +55,12 @@ app.use('/users', usersRouter);
 app.use('/photos', photosRouter);
 app.use('/awards', awardsRouter);
 app.use('/teams', teamsRouter);
-app.use('/matches', matchRouter)
-app.use('/api', apiRouter);
+app.use('/matches', matchRouter);
+app.use('/judges-portal', judgesPortalRouter);
 
 module.exports = app;
 
-const PORT = process.env.DEV_PORT;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
 });
